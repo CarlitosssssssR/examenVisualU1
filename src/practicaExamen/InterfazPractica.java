@@ -29,9 +29,27 @@ public class InterfazPractica extends javax.swing.JFrame {
     DefaultTableModel tablaComputadora;
     int resultadoSuma;
     int mesesDiferidos;
+    int compraMaxima = 10;
+    int intentosUsados;
+
+    public int getIntentosUsados() {
+        return intentosUsados;
+    }
+
+    public void setIntentosUsados(int intentosUsados) {
+        this.intentosUsados = intentosUsados;
+    }
 
     public int getMesesDiferidos() {
         return mesesDiferidos;
+    }
+
+    public int getCompraMaxima() {
+        return compraMaxima;
+    }
+
+    public void setCompraMaxima(int compraMaxima) {
+        this.compraMaxima = compraMaxima;
     }
 
     public void setMesesDiferidos(int mesesDiferidos) {
@@ -88,9 +106,13 @@ public class InterfazPractica extends javax.swing.JFrame {
     }
 
     public void cargarColumnasComputadora() {
-        String[] columnas = {"Almacenamiento", "Modelo", "Regalo", "Meses Diferidos", "VRAM", "Estado TGL"};
+        String[] columnas = {"Almacenamiento", "Modelo", "Regalo", "Meses Diferidos", "VRAM", "Estado TGL", "Slide", "Spinner"};
         tablaComputadora = new DefaultTableModel(null, columnas);
         jtblComputadora.setModel(tablaComputadora);
+        jProgressBar1.setMaximum(getCompraMaxima());
+        jProgressBar1.setValue(getCompraMaxima());
+        jProgressBar1.setStringPainted(true);
+        jProgressBar1.setString("Intentos restantes: " + getCompraMaxima());
     }
 
     public String regalosElegidos() {
@@ -113,14 +135,25 @@ public class InterfazPractica extends javax.swing.JFrame {
     }
 
     public void cargarFilasComputadora() {
-        String[] filas = new String[6];
-        filas[0] = tomarAlmacenamiento();
-        filas[1] = String.valueOf(jcbxModelo.getSelectedItem());
-        filas[2] = regalosElegidos();
-        filas[3] = String.valueOf(getMesesDiferidos());
-        filas[4] = jlstVRAM.getSelectedValue();
-        filas[5] = jtBtnDiferir.getText();
-        tablaComputadora.addRow(filas);
+        if (getIntentosUsados() < 10) {
+            String[] filas = new String[8];
+            filas[0] = tomarAlmacenamiento();
+            filas[1] = String.valueOf(jcbxModelo.getSelectedItem());
+            filas[2] = regalosElegidos();
+            filas[3] = String.valueOf(getMesesDiferidos());
+            filas[4] = jlstVRAM.getSelectedValue();
+            filas[5] = jtBtnDiferir.getText();
+            filas[6] = String.valueOf(jsldPuntos.getValue());
+            filas[7] = String.valueOf(jspnVidas.getValue());
+            tablaComputadora.addRow(filas);
+
+            setIntentosUsados(getIntentosUsados() + 1);
+            int intentosRestantes = (getCompraMaxima() - getIntentosUsados());
+            jProgressBar1.setValue(intentosRestantes);
+            jProgressBar1.setString("Intentos restantes: " + intentosRestantes);
+        } else {
+            JOptionPane.showMessageDialog(this, "Te quedaste sin intentos vuelve pronto");
+        }
     }
 
     public void devolverDatosTablaComputadora() {
@@ -145,20 +178,40 @@ public class InterfazPractica extends javax.swing.JFrame {
                     jchbxAuriculares.setSelected(regalo.contains("Audifonos"));
                     jchbxMouse.setSelected(regalo.contains("Mouse"));
                     jchbxTeclado.setSelected(regalo.contains("Teclado"));
-                    
+
                     //Devolver Scroll Bar y ToggleButton
                     int meses = Integer.valueOf(jtblComputadora.getValueAt(fila, 3).toString());
                     jscrBMeses.setValue(meses);
                     jtBtnDiferir.setSelected(meses > 0);
                     diferir();
-                    
+
                     //Devolver JList
                     String vram = jtblComputadora.getValueAt(fila, 4).toString();
                     jlstVRAM.setSelectedValue(vram, true);
 
+                    //Devolver slider
+                    String slide = jtblComputadora.getValueAt(fila, 6).toString();
+                    jsldPuntos.setValue(Integer.valueOf(slide));
+
+                    //Devolver spinner
+                    String spinner = jtblComputadora.getValueAt(fila, 7).toString();
+                    jspnVidas.setValue(Integer.valueOf(slide));
+
                 }
             }
         });
+    }
+
+    public void eliminarProducto() {
+        try {
+            int fila = jtblComputadora.getSelectedRow();
+            if (fila == -1) {
+                throw new Exception();
+            }
+            tablaComputadora.removeRow(fila);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Seleccione una fila a eliminar");
+        }
     }
 
     //APARTADO 1 COMPONENTES GRUPO 4
@@ -231,6 +284,9 @@ public class InterfazPractica extends javax.swing.JFrame {
         jScrollPane5 = new javax.swing.JScrollPane();
         jtblComputadora = new javax.swing.JTable();
         jtBtnDiferir = new javax.swing.JToggleButton();
+        jsldPuntos = new javax.swing.JSlider();
+        jProgressBar1 = new javax.swing.JProgressBar();
+        jspnVidas = new javax.swing.JSpinner();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -246,9 +302,19 @@ public class InterfazPractica extends javax.swing.JFrame {
         jScrollPane4.setViewportView(jTable1);
 
         Eliminar.setText("Eliminar Producto");
+        Eliminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EliminarActionPerformed(evt);
+            }
+        });
         jPopupMenu1.add(Eliminar);
 
         Editar.setText("Editar Producto");
+        Editar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                EditarActionPerformed(evt);
+            }
+        });
         jPopupMenu1.add(Editar);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -309,6 +375,11 @@ public class InterfazPractica extends javax.swing.JFrame {
         jrBtn1TB.setText("1 TB");
 
         jcbxModelo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jcbxModelo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jcbxModeloActionPerformed(evt);
+            }
+        });
 
         jchbxMouse.setText("Mouse");
 
@@ -359,6 +430,10 @@ public class InterfazPractica extends javax.swing.JFrame {
             }
         });
 
+        jsldPuntos.setMajorTickSpacing(10);
+        jsldPuntos.setMinorTickSpacing(10);
+        jsldPuntos.setPaintLabels(true);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -403,8 +478,13 @@ public class InterfazPractica extends javax.swing.JFrame {
                                     .addComponent(jtBtnDiferir))
                                 .addGap(18, 18, 18)
                                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jScrollPane5))))
-                .addContainerGap(45, Short.MAX_VALUE))
+                            .addComponent(jScrollPane5))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jsldPuntos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jProgressBar1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jspnVidas, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                .addContainerGap(90, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -431,32 +511,40 @@ public class InterfazPractica extends javax.swing.JFrame {
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(27, 27, 27)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(jscrBMeses, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                .addComponent(jrBtn256GB)
-                                                .addComponent(jcbxModelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                                .addComponent(jchbxMouse)))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                        .addComponent(jsldPuntos, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jspnVidas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(26, 26, 26)
+                                        .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                             .addGroup(layout.createSequentialGroup()
-                                                .addComponent(jrBtn512GB)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jrBtn1TB))
-                                            .addGroup(layout.createSequentialGroup()
-                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                                    .addComponent(jchbxTeclado)
-                                                    .addComponent(jtBtnDiferir))
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(jchbxAuriculares)))
-                                        .addGap(36, 36, 36)
-                                        .addComponent(jButton2)))
-                                .addGap(18, 18, 18)
-                                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                .addContainerGap(117, Short.MAX_VALUE))
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                    .addComponent(jscrBMeses, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(jrBtn256GB)
+                                                        .addComponent(jcbxModelo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(jchbxMouse)))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                                    .addGroup(layout.createSequentialGroup()
+                                                        .addComponent(jrBtn512GB)
+                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                        .addComponent(jrBtn1TB))
+                                                    .addGroup(layout.createSequentialGroup()
+                                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                                            .addComponent(jchbxTeclado)
+                                                            .addComponent(jtBtnDiferir))
+                                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                        .addComponent(jchbxAuriculares)))
+                                                .addGap(36, 36, 36)
+                                                .addComponent(jButton2)))
+                                        .addGap(18, 18, 18)
+                                        .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 199, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
+                .addContainerGap(60, Short.MAX_VALUE))
         );
 
         pack();
@@ -505,6 +593,19 @@ public class InterfazPractica extends javax.swing.JFrame {
         cargarFilasComputadora();
     }//GEN-LAST:event_jButton2ActionPerformed
 
+    private void EliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EliminarActionPerformed
+        // TODO add your handling code here:
+        eliminarProducto();
+    }//GEN-LAST:event_EliminarActionPerformed
+
+    private void EditarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EditarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_EditarActionPerformed
+
+    private void jcbxModeloActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jcbxModeloActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jcbxModeloActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -546,6 +647,7 @@ public class InterfazPractica extends javax.swing.JFrame {
     private javax.swing.ButtonGroup btnGroupAlmacenamiento;
     private javax.swing.JButton jButton2;
     private javax.swing.JPopupMenu jPopupMenu1;
+    private javax.swing.JProgressBar jProgressBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -564,6 +666,8 @@ public class InterfazPractica extends javax.swing.JFrame {
     private javax.swing.JRadioButton jrBtn256GB;
     private javax.swing.JRadioButton jrBtn512GB;
     private javax.swing.JScrollBar jscrBMeses;
+    private javax.swing.JSlider jsldPuntos;
+    private javax.swing.JSpinner jspnVidas;
     private javax.swing.JToggleButton jtBtnDiferir;
     private javax.swing.JTable jtblComputadora;
     private javax.swing.JTable jtblPrincipal;
