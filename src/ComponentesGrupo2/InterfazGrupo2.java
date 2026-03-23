@@ -144,6 +144,7 @@ public class InterfazGrupo2 extends javax.swing.JFrame {
     private void initComponents() {
 
         btnRadioGroup = new javax.swing.ButtonGroup();
+        jToggleButton1 = new javax.swing.JToggleButton();
         jPanel1 = new javax.swing.JPanel();
         jrbtn256GB = new javax.swing.JRadioButton();
         jrbtn512GB = new javax.swing.JRadioButton();
@@ -160,6 +161,8 @@ public class InterfazGrupo2 extends javax.swing.JFrame {
         jscrMeses = new javax.swing.JScrollBar();
         jSeparator1 = new javax.swing.JSeparator();
         jbtnComprar = new javax.swing.JButton();
+
+        jToggleButton1.setText("jToggleButton1");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -423,6 +426,7 @@ public class InterfazGrupo2 extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JToggleButton jToggleButton1;
     private javax.swing.JButton jbtnComprar;
     private javax.swing.JComboBox<String> jcbxModelos;
     private javax.swing.JCheckBox jchkAudifonos;

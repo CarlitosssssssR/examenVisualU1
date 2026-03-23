@@ -158,6 +158,7 @@ public void devolverDatosTabla() {
             }
         ));
         jtblProductos.setComponentPopupMenu(jpopUpEliminar);
+        jtblProductos.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
         jtblProductos.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jtblProductosMouseClicked(evt);
